@@ -1082,6 +1082,7 @@ class FieldList(Field):
         validators=None,
         min_entries=0,
         max_entries=None,
+        separator="-",
         default=(),
         **kwargs,
     ):
@@ -1099,6 +1100,7 @@ class FieldList(Field):
         self.max_entries = max_entries
         self.last_index = -1
         self._prefix = kwargs.get("_prefix", "")
+        self.separator=separator
 
     def process(self, formdata, data=unset_value, extra_filters=None):
         if extra_filters:
@@ -1146,7 +1148,7 @@ class FieldList(Field):
         offset = len(prefix) + 1
         for k in formdata:
             if k.startswith(prefix):
-                k = k[offset:].split("-", 1)[0]
+                k = k[offset:].split(self.separator, 1)[0]
                 if k.isdigit():
                     yield int(k)
 
@@ -1198,8 +1200,8 @@ class FieldList(Field):
         if index is None:
             index = self.last_index + 1
         self.last_index = index
-        name = "%s-%d" % (self.short_name, index)
-        id = "%s-%d" % (self.id, index)
+        name = "%s%s%d" % (self.short_name, self.separator, index)
+        id = "%s%s%d" % (self.id, self.separator, index)
         field = self.unbound_field.bind(
             form=None,
             name=name,
